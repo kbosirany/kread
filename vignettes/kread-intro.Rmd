@@ -42,32 +42,17 @@ saveRDS(mtcars[1:10, ], rds_file)
 
 # Introduction
 
-The `kread` package provides a unified interface for reading various file formats into R. Instead of remembering which function to use for each file type, `kread` automatically detects the file format based on its extension and applies the appropriate reading function.
-
-## Installation
-
-You can install the development version of kread from GitLab:
-
-```{r installation, eval = FALSE}
-# install.packages("remotes")
-remotes::install_gitlab("OrlandoKevin/kread")
-```
-
-## Supported File Formats
-
-`kread` supports a wide range of file formats:
-
-- **Delimited files**: CSV, TSV, DAT
-- **Spreadsheets**: Excel (.xls, .xlsx), OpenDocument Spreadsheet (.ods)
-- **Geospatial**: Shapefiles (.shp), NetCDF (.nc)
-- **R objects**: RDS files
-- **Configuration**: YAML (.yml, .yaml), INI (.ini)
+The `kread` package provides a unified interface for reading various file
+formats into R. Instead of remembering which function to use for each file type,
+`kread` automatically detects the file format based on its extension and applies
+the appropriate reading function.
 
 ## Basic Usage
 
 ### The `read()` Function
 
-The main function is `read()`, which automatically detects the file type and uses the appropriate reader:
+The main function is `read()`, which automatically detects the file type and
+uses the appropriate reader:
 
 ```{r basic-read}
 # Read a CSV file
@@ -79,7 +64,9 @@ r_object <- read(rds_file)
 head(r_object)
 ```
 
-The function automatically detects the file format based on the extension and uses the appropriate reader. For demonstration purposes with files that aren't available in this vignette:
+The function automatically detects the file format based on the extension and
+uses the appropriate reader. For demonstration purposes with files that aren't
+available in this vignette:
 
 ```{r basic-read-demo, eval = FALSE}
 # Read an Excel file
@@ -119,7 +106,8 @@ data <- read("data/report.xlsx", skip = 3)
 
 ### Reading Delimited Files with `read_table()`
 
-The `read_table()` function is specifically designed for delimited files and suppresses column type messages by default:
+The `read_table()` function is specifically designed for delimited files and
+suppresses column type messages by default:
 
 ```{r read-table}
 # Read a CSV file quietly (no column type messages)
@@ -145,7 +133,8 @@ data_named <- read_table("data/myfile.csv",
 
 ### Reading Excel Files with `read_excel()`
 
-The `read_excel()` function provides enhanced functionality for working with Excel files, including multi-sheet support.
+The `read_excel()` function provides enhanced functionality for working with
+Excel files, including multi-sheet support.
 
 We'll demonstrate with the built-in example file from the `readxl` package:
 
@@ -222,7 +211,8 @@ head(data)
 
 ### Getting the Reading Function
 
-You can retrieve the function that would be used without actually reading the file:
+You can retrieve the function that would be used without actually reading the
+file:
 
 ```{r get-function}
 # Get the appropriate reading function for different file types
@@ -248,8 +238,12 @@ csv_files <- c(
   file.path(temp_dir, "data2.csv")
 )
 
-write.csv(data.frame(x = 1:3, y = letters[1:3]), csv_files[1], row.names = FALSE)
-write.csv(data.frame(x = 4:6, y = letters[4:6]), csv_files[2], row.names = FALSE)
+write.csv(
+  data.frame(x = 1:3, y = letters[1:3]), csv_files[1], row.names = FALSE
+)
+write.csv(
+  data.frame(x = 4:6, y = letters[4:6]), csv_files[2], row.names = FALSE
+)
 
 # Read all files into a list
 all_data <- lapply(csv_files, read, delim = ",")
@@ -363,15 +357,20 @@ head(rds_data, 2)
 
 ## Best Practices
 
-1. **Use `read()` for quick exploration** - Let the automatic detection handle format selection
-2. **Use specialized functions for production code** - `read_table()` and `read_excel()` offer more control
+1. **Use `read()` for quick exploration** - Let the automatic detection handle
+format selection
+2. **Use specialized functions for production code** - `read_table()` and
+`read_excel()` offer more control
 3. **Always handle errors** - Wrap file reading in `tryCatch()` for robust code
-4. **Specify delimiters explicitly** - Even though `read_table()` can guess, being explicit prevents issues
-5. **Document your file formats** - Keep track of what formats your workflow uses
+4. **Specify delimiters explicitly** - Even though `read_table()` can guess,
+being explicit prevents issues
+5. **Document your file formats** - Keep track of what formats your workflow
+uses
 
 ## Performance Considerations
 
-- For large CSV files, consider using `data.table::fread()` or `vroom::vroom()` directly
+- For large CSV files, consider using `data.table::fread()` or `vroom::vroom()`
+directly
 - For very large Excel files, consider converting to CSV first
 - NetCDF and spatial files are loaded lazily by their respective packages
 
@@ -396,7 +395,8 @@ The `kread` package simplifies file reading in R by:
 - Supporting advanced features like multi-sheet Excel reading
 - Maintaining compatibility with underlying reading functions
 
-Whether you're working with simple CSV files or complex multi-sheet Excel workbooks, `kread` makes data import straightforward and consistent.
+Whether you're working with simple CSV files or complex multi-sheet Excel
+workbooks, `kread` makes data import straightforward and consistent.
 
 ```{r cleanup, include = FALSE}
 # Clean up temporary files
