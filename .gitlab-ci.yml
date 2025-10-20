@@ -11,7 +11,7 @@ variables:
   COVERAGE_REPORT: "$CI_CACHE_DIR/coverage.RDS"
 
 cache:
-  key:
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
     - $CI_CACHE_DIR
 
@@ -50,7 +50,7 @@ coverage:
   artifacts:
     paths:
       - ci/coverage.RDS
-  coverage: '/kutils Coverage: ([0-9.]+)%/'
+  coverage: '/kread Coverage: ([0-9.]+)%/'
 
 .deploy:
   rules:
