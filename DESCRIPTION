@@ -13,7 +13,9 @@ Imports:
     readxl,
     readODS,
     stars,
-    sf
+    sf,
+    yaml,
+    ini
 Remotes: 
     git::https://forgemia.inra.fr/umr-g-eau/fairify.git
 Encoding: UTF-8
