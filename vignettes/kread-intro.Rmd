@@ -12,9 +12,32 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  eval = TRUE  # Set to TRUE when you want to run examples
+  comment = "#>"
 )
+library(kread)
+
+# Create temporary files for examples
+temp_dir <- tempdir()
+
+# Create a sample CSV file
+csv_file <- file.path(temp_dir, "sample.csv")
+write.csv(data.frame(
+  id = 1:5,
+  name = c("Alice", "Bob", "Charlie", "David", "Eve"),
+  score = c(85, 92, 78, 95, 88)
+), csv_file, row.names = FALSE)
+
+# Create a sample TSV file
+tsv_file <- file.path(temp_dir, "sample.tsv")
+write.table(data.frame(
+  product = c("A", "B", "C"),
+  price = c(10.5, 20.3, 15.7),
+  quantity = c(100, 50, 75)
+), tsv_file, sep = "\t", row.names = FALSE)
+
+# Create a sample RDS file
+rds_file <- file.path(temp_dir, "sample.rds")
+saveRDS(mtcars[1:10, ], rds_file)
 ```
 
 # Introduction
@@ -25,7 +48,7 @@ The `kread` package provides a unified interface for reading various file format
 
 You can install the development version of kread from GitLab:
 
-```{r installation}
+```{r installation, eval = FALSE}
 # install.packages("remotes")
 remotes::install_gitlab("OrlandoKevin/kread")
 ```
@@ -47,19 +70,26 @@ remotes::install_gitlab("OrlandoKevin/kread")
 The main function is `read()`, which automatically detects the file type and uses the appropriate reader:
 
 ```{r basic-read}
-library(kread)
-
 # Read a CSV file
-data_csv <- read("data/myfile.csv")
+data_csv <- read(csv_file, delim = ",")
+head(data_csv)
 
+# Read an RDS file
+r_object <- read(rds_file)
+head(r_object)
+```
+
+The function automatically detects the file format based on the extension and uses the appropriate reader. For demonstration purposes with files that aren't available in this vignette:
+
+```{r basic-read-demo, eval = FALSE}
 # Read an Excel file
 data_excel <- read("data/myfile.xlsx")
 
 # Read a shapefile
 spatial_data <- read("data/boundaries.shp")
 
-# Read an RDS file
-r_object <- read("data/model.rds")
+# Read a YAML configuration
+config <- read("config/settings.yml")
 ```
 
 ### Passing Additional Arguments
@@ -67,16 +97,22 @@ r_object <- read("data/model.rds")
 You can pass additional arguments to the underlying reading functions:
 
 ```{r read-with-args}
+# Read with specific delimiter
+data <- read(csv_file, delim = ",", show_col_types = FALSE)
+
+# Read specific columns (using readr syntax)
+data_subset <- read(csv_file, delim = ",", col_select = c(id, name))
+head(data_subset)
+```
+
+For files not available in this vignette:
+
+```{r read-with-args-demo, eval = FALSE}
 # Read CSV with semicolon delimiter
 data <- read("data/european.csv", delim = ";")
 
 # Skip first few rows in Excel
 data <- read("data/report.xlsx", skip = 3)
-
-# Read specific columns
-data <- read("data/large_file.csv", 
-             delim = ",",
-             col_select = c("id", "name", "value"))
 ```
 
 ## Specialized Reading Functions
@@ -86,39 +122,53 @@ data <- read("data/large_file.csv",
 The `read_table()` function is specifically designed for delimited files and suppresses column type messages by default:
 
 ```{r read-table}
-# Read a CSV file quietly
-data <- read_table("data/myfile.csv")
+# Read a CSV file quietly (no column type messages)
+data <- read_table(csv_file, delim = ",")
+head(data)
 
-# Read with delimiter specification
-data_tsv <- read_table("data/myfile.tsv", delim = "\t")
+# Read a TSV file with delimiter specification
+data_tsv <- read_table(tsv_file, delim = "\t")
+head(data_tsv)
 
 # Show column types if needed
-data_verbose <- read_table("data/myfile.csv", show_col_types = TRUE)
+data_verbose <- read_table(csv_file, delim = ",", show_col_types = TRUE)
+```
 
+You can also specify custom column names:
+
+```{r read-table-names, eval = FALSE}
 # Specify custom column names
 data_named <- read_table("data/myfile.csv", 
+                         delim = ",",
                          col_names = c("ID", "Name", "Score"))
 ```
 
 ### Reading Excel Files with `read_excel()`
 
-The `read_excel()` function provides enhanced functionality for working with Excel files, including multi-sheet support:
+The `read_excel()` function provides enhanced functionality for working with Excel files, including multi-sheet support.
+
+We'll demonstrate with the built-in example file from the `readxl` package:
 
 ```{r read-excel}
+# Use readxl's example Excel file
+example_file <- readxl::readxl_example("datasets.xlsx")
+
+# See what sheets are available
+readxl::excel_sheets(example_file)
+
 # Read all sheets (returns a list)
-all_sheets <- read_excel("data/workbook.xlsx")
+all_sheets <- read_excel(example_file)
+length(all_sheets)
+names(all_sheets)
 
 # Read specific sheets
-selected_sheets <- read_excel("data/workbook.xlsx", 
-                              sheets = c("Data", "Summary"))
+selected_sheets <- read_excel(example_file, 
+                              sheets = c("mtcars", "chickwts"))
+lapply(selected_sheets, head, n = 3)
 
 # Read a single sheet (returns a data frame, not a list)
-single_sheet <- read_excel("data/workbook.xlsx", sheets = "Data")
-
-# Read without simplification (always returns a list)
-sheet_list <- read_excel("data/workbook.xlsx", 
-                         sheets = "Data", 
-                         simplify = FALSE)
+single_sheet <- read_excel(example_file, sheets = "mtcars")
+head(single_sheet)
 ```
 
 ### Sheet-Specific Arguments
@@ -128,18 +178,25 @@ You can apply different arguments to different sheets:
 ```{r sheet-specific}
 # Apply different skip values to different sheets
 data <- read_excel(
-  "data/report.xlsx",
-  sheets = c("Sheet1", "Sheet2"),
-  Sheet1 = list(skip = 2, col_names = TRUE),
-  Sheet2 = list(skip = 0, col_names = FALSE)
+  example_file,
+  sheets = c("mtcars", "chickwts"),
+  mtcars = list(n_max = 5),      # Only read first 5 rows of mtcars
+  chickwts = list(n_max = 3)     # Only read first 3 rows of chickwts
 )
 
+lapply(data, nrow)
+lapply(data, head, n = 2)
+```
+
+For demonstration with other files:
+
+```{r sheet-specific-demo, eval = FALSE}
 # Mix sheet-specific and common arguments
 data <- read_excel(
   "data/workbook.xlsx",
   sheets = c("Q1", "Q2", "Q3"),
-  Q1 = list(skip = 5),  # Only Q1 skips 5 rows
-  na = c("", "NA", "N/A")  # Applied to all sheets
+  Q1 = list(skip = 5),            # Only Q1 skips 5 rows
+  na = c("", "NA", "N/A")         # Applied to all sheets
 )
 ```
 
@@ -151,13 +208,16 @@ If you need more control, you can specify a custom reading function:
 
 ```{r custom-function}
 # Use a specific readr function
-data <- read("data/file.csv", FUN = readr::read_csv)
+data <- read(csv_file, FUN = readr::read_csv)
+head(data)
 
 # Use a custom function
 my_reader <- function(path) {
-  readr::read_csv(path, col_types = cols(.default = "c"))
+  readr::read_csv(path, col_types = readr::cols(.default = "c"), 
+                  show_col_types = FALSE)
 }
-data <- read("data/file.csv", FUN = my_reader)
+data <- read(csv_file, FUN = my_reader)
+head(data)
 ```
 
 ### Getting the Reading Function
@@ -165,11 +225,16 @@ data <- read("data/file.csv", FUN = my_reader)
 You can retrieve the function that would be used without actually reading the file:
 
 ```{r get-function}
-# Get the appropriate reading function
-read_fn <- get_read_fun("data/myfile.xlsx")
+# Get the appropriate reading function for different file types
+get_read_fun(csv_file)
+get_read_fun(rds_file)
+get_read_fun("example.xlsx")
+get_read_fun("config.yml")
 
 # Use it later
-data <- read_fn("data/myfile.xlsx", sheet = "Sheet1")
+read_fn <- get_read_fun(csv_file)
+data <- read_fn(csv_file, delim = ",")
+head(data)
 ```
 
 ## Practical Examples
@@ -177,39 +242,54 @@ data <- read_fn("data/myfile.xlsx", sheet = "Sheet1")
 ### Example 1: Reading Multiple CSV Files
 
 ```{r example-multiple}
-# Read multiple CSV files from a directory
-file_list <- list.files("data/", pattern = "\\.csv$", full.names = TRUE)
+# Create multiple CSV files for demonstration
+csv_files <- c(
+  file.path(temp_dir, "data1.csv"),
+  file.path(temp_dir, "data2.csv")
+)
+
+write.csv(data.frame(x = 1:3, y = letters[1:3]), csv_files[1], row.names = FALSE)
+write.csv(data.frame(x = 4:6, y = letters[4:6]), csv_files[2], row.names = FALSE)
 
 # Read all files into a list
-all_data <- lapply(file_list, read, delim = ",")
+all_data <- lapply(csv_files, read, delim = ",")
 
 # Or with explicit function
-all_data <- lapply(file_list, read_table, delim = ",")
+all_data <- lapply(csv_files, read_table, delim = ",")
 
 # Combine into one data frame
 combined_data <- do.call(rbind, all_data)
+combined_data
 ```
 
 ### Example 2: Working with Excel Workbooks
 
 ```{r example-excel}
 # Read an Excel workbook with multiple sheets
-workbook <- read_excel("data/annual_report.xlsx")
+workbook <- read_excel(example_file)
 
-# Access individual sheets (if multiple sheets were read)
-revenue <- workbook[[1]]
-expenses <- workbook[[2]]
+# Access individual sheets (returns unnamed list)
+sheet1 <- workbook[[1]]
+sheet2 <- workbook[[2]]
+
+head(sheet1, 3)
+head(sheet2, 3)
 
 # Or read specific sheets by name
 financial_data <- read_excel(
-  "data/annual_report.xlsx",
-  sheets = c("Revenue", "Expenses", "Profit")
+  example_file,
+  sheets = c("mtcars", "chickwts")
 )
+
+# See the structure
+str(financial_data, max.level = 1)
 ```
 
 ### Example 3: Reading Geospatial Data
 
-```{r example-spatial}
+Geospatial data reading (for demonstration - requires actual spatial files):
+
+```{r example-spatial, eval = FALSE}
 # Read a shapefile
 boundaries <- read("data/admin_boundaries.shp")
 
@@ -223,7 +303,9 @@ plot(boundaries)
 
 ### Example 4: Configuration Files
 
-```{r example-config}
+Configuration file reading (for demonstration - requires actual config files):
+
+```{r example-config, eval = FALSE}
 # Read YAML configuration
 config <- read("config/settings.yml")
 
@@ -239,12 +321,19 @@ db_host <- ini_config$database$host
 `kread` will throw an error if the file extension is not supported:
 
 ```{r error-handling}
-# This will error
+# This will error for unsupported formats
 tryCatch(
-  read("document.pdf"),
+  get_read_fun("document.pdf"),
   error = function(e) {
-    message("Error: ", e$message)
-    # Handle unsupported format
+    message("Caught error: ", e$message)
+  }
+)
+
+# Another example
+tryCatch(
+  get_read_fun("data.json"),
+  error = function(e) {
+    message("Caught error: ", e$message)
   }
 )
 ```
@@ -252,7 +341,7 @@ tryCatch(
 ## Comparison with Base R
 
 ### Traditional Approach
-```{r traditional}
+```{r traditional, eval = FALSE}
 # You need to remember which function for which format
 csv_data <- read.csv("data.csv")
 excel_data <- readxl::read_excel("data.xlsx")
@@ -263,10 +352,13 @@ rds_data <- readRDS("model.rds")
 ### With kread
 ```{r kread-approach}
 # One function for all formats
-csv_data <- read("data.csv")
-excel_data <- read("data.xlsx")
-yaml_data <- read("config.yml")
-rds_data <- read("model.rds")
+csv_data <- read(csv_file, delim = ",")
+excel_data <- read(example_file)
+rds_data <- read(rds_file)
+
+# All work the same way!
+head(csv_data, 2)
+head(rds_data, 2)
 ```
 
 ## Best Practices
@@ -287,7 +379,7 @@ rds_data <- read("model.rds")
 
 For more information on specific functions:
 
-```{r help}
+```{r help, eval = FALSE}
 ?read
 ?read_table
 ?read_excel
@@ -305,3 +397,8 @@ The `kread` package simplifies file reading in R by:
 - Maintaining compatibility with underlying reading functions
 
 Whether you're working with simple CSV files or complex multi-sheet Excel workbooks, `kread` makes data import straightforward and consistent.
+
+```{r cleanup, include = FALSE}
+# Clean up temporary files
+unlink(c(csv_file, tsv_file, rds_file, csv_files))
+```
