@@ -126,9 +126,9 @@ You can also specify custom column names:
 
 ```{r read-table-names, eval = FALSE}
 # Specify custom column names
-data_named <- read_table("data/myfile.csv", 
-                         delim = ",",
-                         col_names = c("ID", "Name", "Score"))
+data_named <- read_table(
+  "data/myfile.csv", delim = ",", col_names = c("ID", "Name", "Score")
+)
 ```
 
 ### Reading Excel Files with `read_excel()`
@@ -151,8 +151,7 @@ length(all_sheets)
 names(all_sheets)
 
 # Read specific sheets
-selected_sheets <- read_excel(example_file, 
-                              sheets = c("mtcars", "chickwts"))
+selected_sheets <- read_excel(example_file,  sheets = c("mtcars", "chickwts"))
 lapply(selected_sheets, head, n = 3)
 
 # Read a single sheet (returns a data frame, not a list)

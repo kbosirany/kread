@@ -123,7 +123,7 @@ read_excel <- function(
   common_args <- args[!names(args) %in% sheets]
   
   x <- lapply(
-    sheets,
+    setNames(nm = sheets),
     function(s) {
       # If there's a sheet-specific argument, use it; otherwise use common args
       if (s %in% sheet_specific_args) {
