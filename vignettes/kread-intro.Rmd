@@ -13,7 +13,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = FALSE  # Set to TRUE when you want to run examples
+  eval = TRUE  # Set to TRUE when you want to run examples
 )
 ```
 
