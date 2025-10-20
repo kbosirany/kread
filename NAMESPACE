@@ -3,4 +3,3 @@
 export(cleanDataCache)
 export(getDataPath)
 export(loadConfig)
-importFrom(readr,read_csv)
