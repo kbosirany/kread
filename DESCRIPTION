@@ -9,7 +9,12 @@ Description: The kread package provides functions to read various file formats
     into R, making data import easier and more efficient.
 License: AGPL (>= 3)
 Imports: 
-    fairify
+    fairify,
+    readr,
+    readxl,
+    readODS,
+    stars,
+    sf
 Remotes: 
     git::https://forgemia.inra.fr/umr-g-eau/fairify.git
 Encoding: UTF-8

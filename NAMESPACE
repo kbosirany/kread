@@ -2,4 +2,6 @@
 
 export(cleanDataCache)
 export(getDataPath)
+export(get_read_fun)
 export(loadConfig)
+export(read)
