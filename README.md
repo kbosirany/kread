@@ -5,10 +5,10 @@
 [![License: AGPL
 v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Experimental](https://img.shields.io/badge/status-experimental-orange.svg)](https://gitlab.com/OrlandoKevin/kread)
-[![pipeline
+[![Pipeline
 status](https://gitlab.com/OrlandoKevin/kread/-/badges/main/pipeline.svg)](https://gitlab.com/OrlandoKevin/kread/-/commits/main)
-[![coverage
-report](https://gitlab.com/OrlandoKevin/kread/-/badges/main/coverage.svg)](https://gitlab.com/OrlandoKevin/kread/-/commits/main)
+[![Coverage
+status](https://gitlab.com/OrlandoKevin/kread/-/badges/main/coverage.svg)](https://orlandokevin.gitlab.io/kread/coverage.html)
 <!-- badges: end -->
 
 `kread` is …
