@@ -1,0 +1,307 @@
+---
+title: "Introduction to kread"
+author: "Kevin Bosirany Orlando"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to kread}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE  # Set to TRUE when you want to run examples
+)
+```
+
+# Introduction
+
+The `kread` package provides a unified interface for reading various file formats into R. Instead of remembering which function to use for each file type, `kread` automatically detects the file format based on its extension and applies the appropriate reading function.
+
+## Installation
+
+You can install the development version of kread from GitLab:
+
+```{r installation}
+# install.packages("remotes")
+remotes::install_gitlab("OrlandoKevin/kread")
+```
+
+## Supported File Formats
+
+`kread` supports a wide range of file formats:
+
+- **Delimited files**: CSV, TSV, DAT
+- **Spreadsheets**: Excel (.xls, .xlsx), OpenDocument Spreadsheet (.ods)
+- **Geospatial**: Shapefiles (.shp), NetCDF (.nc)
+- **R objects**: RDS files
+- **Configuration**: YAML (.yml, .yaml), INI (.ini)
+
+## Basic Usage
+
+### The `read()` Function
+
+The main function is `read()`, which automatically detects the file type and uses the appropriate reader:
+
+```{r basic-read}
+library(kread)
+
+# Read a CSV file
+data_csv <- read("data/myfile.csv")
+
+# Read an Excel file
+data_excel <- read("data/myfile.xlsx")
+
+# Read a shapefile
+spatial_data <- read("data/boundaries.shp")
+
+# Read an RDS file
+r_object <- read("data/model.rds")
+```
+
+### Passing Additional Arguments
+
+You can pass additional arguments to the underlying reading functions:
+
+```{r read-with-args}
+# Read CSV with semicolon delimiter
+data <- read("data/european.csv", delim = ";")
+
+# Skip first few rows in Excel
+data <- read("data/report.xlsx", skip = 3)
+
+# Read specific columns
+data <- read("data/large_file.csv", 
+             delim = ",",
+             col_select = c("id", "name", "value"))
+```
+
+## Specialized Reading Functions
+
+### Reading Delimited Files with `read_table()`
+
+The `read_table()` function is specifically designed for delimited files and suppresses column type messages by default:
+
+```{r read-table}
+# Read a CSV file quietly
+data <- read_table("data/myfile.csv")
+
+# Read with delimiter specification
+data_tsv <- read_table("data/myfile.tsv", delim = "\t")
+
+# Show column types if needed
+data_verbose <- read_table("data/myfile.csv", show_col_types = TRUE)
+
+# Specify custom column names
+data_named <- read_table("data/myfile.csv", 
+                         col_names = c("ID", "Name", "Score"))
+```
+
+### Reading Excel Files with `read_excel()`
+
+The `read_excel()` function provides enhanced functionality for working with Excel files, including multi-sheet support:
+
+```{r read-excel}
+# Read all sheets (returns a list)
+all_sheets <- read_excel("data/workbook.xlsx")
+
+# Read specific sheets
+selected_sheets <- read_excel("data/workbook.xlsx", 
+                              sheets = c("Data", "Summary"))
+
+# Read a single sheet (returns a data frame, not a list)
+single_sheet <- read_excel("data/workbook.xlsx", sheets = "Data")
+
+# Read without simplification (always returns a list)
+sheet_list <- read_excel("data/workbook.xlsx", 
+                         sheets = "Data", 
+                         simplify = FALSE)
+```
+
+### Sheet-Specific Arguments
+
+You can apply different arguments to different sheets:
+
+```{r sheet-specific}
+# Apply different skip values to different sheets
+data <- read_excel(
+  "data/report.xlsx",
+  sheets = c("Sheet1", "Sheet2"),
+  Sheet1 = list(skip = 2, col_names = TRUE),
+  Sheet2 = list(skip = 0, col_names = FALSE)
+)
+
+# Mix sheet-specific and common arguments
+data <- read_excel(
+  "data/workbook.xlsx",
+  sheets = c("Q1", "Q2", "Q3"),
+  Q1 = list(skip = 5),  # Only Q1 skips 5 rows
+  na = c("", "NA", "N/A")  # Applied to all sheets
+)
+```
+
+## Advanced Usage
+
+### Custom Reading Functions
+
+If you need more control, you can specify a custom reading function:
+
+```{r custom-function}
+# Use a specific readr function
+data <- read("data/file.csv", FUN = readr::read_csv)
+
+# Use a custom function
+my_reader <- function(path) {
+  readr::read_csv(path, col_types = cols(.default = "c"))
+}
+data <- read("data/file.csv", FUN = my_reader)
+```
+
+### Getting the Reading Function
+
+You can retrieve the function that would be used without actually reading the file:
+
+```{r get-function}
+# Get the appropriate reading function
+read_fn <- get_read_fun("data/myfile.xlsx")
+
+# Use it later
+data <- read_fn("data/myfile.xlsx", sheet = "Sheet1")
+```
+
+## Practical Examples
+
+### Example 1: Reading Multiple CSV Files
+
+```{r example-multiple}
+# Read multiple CSV files from a directory
+file_list <- list.files("data/", pattern = "\\.csv$", full.names = TRUE)
+
+# Read all files into a list
+all_data <- lapply(file_list, read, delim = ",")
+
+# Or with explicit function
+all_data <- lapply(file_list, read_table, delim = ",")
+
+# Combine into one data frame
+combined_data <- do.call(rbind, all_data)
+```
+
+### Example 2: Working with Excel Workbooks
+
+```{r example-excel}
+# Read an Excel workbook with multiple sheets
+workbook <- read_excel("data/annual_report.xlsx")
+
+# Access individual sheets (if multiple sheets were read)
+revenue <- workbook[[1]]
+expenses <- workbook[[2]]
+
+# Or read specific sheets by name
+financial_data <- read_excel(
+  "data/annual_report.xlsx",
+  sheets = c("Revenue", "Expenses", "Profit")
+)
+```
+
+### Example 3: Reading Geospatial Data
+
+```{r example-spatial}
+# Read a shapefile
+boundaries <- read("data/admin_boundaries.shp")
+
+# Read NetCDF climate data
+climate_data <- read("data/temperature.nc")
+
+# Both return spatial objects ready for analysis
+library(sf)
+plot(boundaries)
+```
+
+### Example 4: Configuration Files
+
+```{r example-config}
+# Read YAML configuration
+config <- read("config/settings.yml")
+
+# Read INI file
+ini_config <- read("config/database.ini")
+
+# Access configuration values
+db_host <- ini_config$database$host
+```
+
+## Error Handling
+
+`kread` will throw an error if the file extension is not supported:
+
+```{r error-handling}
+# This will error
+tryCatch(
+  read("document.pdf"),
+  error = function(e) {
+    message("Error: ", e$message)
+    # Handle unsupported format
+  }
+)
+```
+
+## Comparison with Base R
+
+### Traditional Approach
+```{r traditional}
+# You need to remember which function for which format
+csv_data <- read.csv("data.csv")
+excel_data <- readxl::read_excel("data.xlsx")
+yaml_data <- yaml::read_yaml("config.yml")
+rds_data <- readRDS("model.rds")
+```
+
+### With kread
+```{r kread-approach}
+# One function for all formats
+csv_data <- read("data.csv")
+excel_data <- read("data.xlsx")
+yaml_data <- read("config.yml")
+rds_data <- read("model.rds")
+```
+
+## Best Practices
+
+1. **Use `read()` for quick exploration** - Let the automatic detection handle format selection
+2. **Use specialized functions for production code** - `read_table()` and `read_excel()` offer more control
+3. **Always handle errors** - Wrap file reading in `tryCatch()` for robust code
+4. **Specify delimiters explicitly** - Even though `read_table()` can guess, being explicit prevents issues
+5. **Document your file formats** - Keep track of what formats your workflow uses
+
+## Performance Considerations
+
+- For large CSV files, consider using `data.table::fread()` or `vroom::vroom()` directly
+- For very large Excel files, consider converting to CSV first
+- NetCDF and spatial files are loaded lazily by their respective packages
+
+## Getting Help
+
+For more information on specific functions:
+
+```{r help}
+?read
+?read_table
+?read_excel
+?get_read_fun
+```
+
+## Summary
+
+The `kread` package simplifies file reading in R by:
+
+- Providing automatic format detection
+- Offering a unified interface across file types
+- Including sensible defaults (like suppressing column type messages)
+- Supporting advanced features like multi-sheet Excel reading
+- Maintaining compatibility with underlying reading functions
+
+Whether you're working with simple CSV files or complex multi-sheet Excel workbooks, `kread` makes data import straightforward and consistent.
