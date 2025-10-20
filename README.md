@@ -102,3 +102,4 @@ requests on [GitLab](https://gitlab.com/OrlandoKevin/kread).
 ## License
 
 This package is licensed under AGPL-3.0 or later.
+# kmetadata
