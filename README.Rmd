@@ -23,15 +23,22 @@ knitr::opts_chunk$set(
 [![Dev coverage status](https://gitlab.com/OrlandoKevin/kread/badges/main/coverage.svg)](https://orlandokevin.gitlab.io/kread/coverage.html)
 <!-- badges: end -->
 
-The `kread` package provides a unified interface for reading various file formats into R. Instead of remembering which function to use for each file type, `kread` automatically detects the file format based on its extension and applies the appropriate reading function.
+The `kread` package provides a unified interface for reading various file
+formats into R. Instead of remembering which function to use for each file type,
+`kread` automatically detects the file format based on its extension and applies
+the appropriate reading function.
 
 ## Features
 
-- **Automatic format detection**: Just use `read()` and let the package figure out the format
-- **Wide format support**: CSV, TSV, Excel, ODS, NetCDF, Shapefiles, RDS, YAML, INI
+- **Automatic format detection**: Just use `read()` and let the package figure
+out the format
+- **Wide format support**: CSV, TSV, Excel, ODS, NetCDF, Shapefiles, RDS, YAML,
+INI
 - **Sensible defaults**: Suppresses verbose messages by default
-- **Multi-sheet Excel support**: Read one or all sheets with a single function call
-- **Sheet-specific arguments**: Apply different parameters to different Excel sheets
+- **Multi-sheet Excel support**: Read one or all sheets with a single function
+call
+- **Sheet-specific arguments**: Apply different parameters to different Excel
+sheets
 - **Consistent API**: Same interface across all file types
 
 ## Installation
@@ -89,11 +96,13 @@ For more detailed information:
 
 - Run `?read`, `?read_table`, or `?read_excel` in R
 - Browse the [vignette](vignettes/kread-intro.Rmd) for comprehensive examples
-- Visit the [package website](https://orlandokevin.gitlab.io/kread/) (when available)
+- Visit the [package website](https://orlandokevin.gitlab.io/kread/) (when
+available)
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit issues or merge requests on [GitLab](https://gitlab.com/OrlandoKevin/kread).
+Contributions are welcome! Please feel free to submit issues or merge requests
+on [GitLab](https://gitlab.com/OrlandoKevin/kread).
 
 ## License
 
