@@ -1,4 +1,8 @@
 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# kread
+
 <!-- badges: start -->
 
 [![Release](https://gitlab.com/OrlandoKevin/kread/-/badges/release.svg)](https://gitlab.com/OrlandoKevin/kread.git)
@@ -11,14 +15,202 @@ status](https://gitlab.com/OrlandoKevin/kread/badges/main/pipeline.svg)](https:/
 status](https://gitlab.com/OrlandoKevin/kread/badges/main/coverage.svg)](https://orlandokevin.gitlab.io/kread/coverage.html)
 <!-- badges: end -->
 
-`kread` is …
+The `kread` package provides a unified interface for reading various
+file formats into R. Instead of remembering which function to use for
+each file type, `kread` automatically detects the file format based on
+its extension and applies the appropriate reading function.
+
+## Features
+
+- **Automatic format detection**: Just use `read()` and let the package
+  figure out the format
+- **Wide format support**: CSV, TSV, Excel, ODS, NetCDF, Shapefiles,
+  RDS, YAML, INI
+- **Sensible defaults**: Suppresses verbose messages by default
+- **Multi-sheet Excel support**: Read one or all sheets with a single
+  function call
+- **Sheet-specific arguments**: Apply different parameters to different
+  Excel sheets
+- **Consistent API**: Same interface across all file types
 
 ## Installation
 
-You can install the development version of `kread` like so:
+You can install the development version of `kread` from GitLab:
+
+``` r
+# install.packages("remotes")
+remotes::install_gitlab("OrlandoKevin/kread")
+```
+
+Or using git URL:
 
 ``` r
 remotes::install_git(
-  "https://gitlab.com/OrlandoKevin/kread.git", dependencies = TRUE
+  "https://gitlab.com/OrlandoKevin/kread.git", 
+  dependencies = TRUE
 )
 ```
+
+## Supported File Formats
+
+| Format          | Extensions             | Function Used        |
+|-----------------|------------------------|----------------------|
+| Delimited files | `.csv`, `.tsv`, `.dat` | `readr::read_delim`  |
+| Excel           | `.xls`, `.xlsx`        | `readxl::read_excel` |
+| OpenDocument    | `.ods`                 | `readODS::read_ods`  |
+| Shapefiles      | `.shp`                 | `sf::read_sf`        |
+| NetCDF          | `.nc`                  | `stars::read_mdim`   |
+| R objects       | `.rds`, `.RDS`         | `readRDS`            |
+| YAML            | `.yml`, `.yaml`        | `yaml::read_yaml`    |
+| INI             | `.ini`                 | `ini::read.ini`      |
+
+## Quick Start
+
+``` r
+library(kread)
+
+# Read any file format with automatic detection
+data_csv <- read("data.csv")
+data_excel <- read("report.xlsx")
+data_spatial <- read("boundaries.shp")
+
+# Read with additional arguments
+data <- read("data.csv", delim = ";", skip = 2)
+
+# Read Excel with multiple sheets
+all_sheets <- read_excel("workbook.xlsx")
+specific_sheets <- read_excel("workbook.xlsx", sheets = c("Data", "Summary"))
+```
+
+## Main Functions
+
+### `read()` - Universal File Reader
+
+Automatically detects file type and uses the appropriate reading
+function:
+
+``` r
+# Automatic format detection
+data <- read("myfile.csv")
+data <- read("myfile.xlsx")
+data <- read("myfile.shp")
+
+# Pass arguments to underlying function
+data <- read("myfile.csv", delim = ",", col_names = TRUE)
+
+# Override automatic detection
+data <- read("myfile.txt", FUN = readr::read_csv)
+```
+
+### `read_table()` - Delimited Files
+
+Specialized function for reading delimited files (CSV, TSV, etc.) with
+sensible defaults:
+
+``` r
+# Read CSV quietly (no column type messages)
+data <- read_table("data.csv")
+
+# Specify delimiter
+data <- read_table("data.tsv", delim = "\t")
+
+# Show column types if needed
+data <- read_table("data.csv", show_col_types = TRUE)
+```
+
+### `read_excel()` - Excel Files
+
+Enhanced Excel reading with multi-sheet support:
+
+``` r
+# Read all sheets (returns a list)
+all_data <- read_excel("workbook.xlsx")
+
+# Read specific sheets
+data <- read_excel("workbook.xlsx", sheets = c("Sheet1", "Sheet2"))
+
+# Read single sheet (returns data frame, not list)
+data <- read_excel("workbook.xlsx", sheets = "Data")
+
+# Apply different arguments to different sheets
+data <- read_excel(
+  "workbook.xlsx",
+  sheets = c("Sheet1", "Sheet2"),
+  Sheet1 = list(skip = 2),
+  Sheet2 = list(skip = 0)
+)
+```
+
+## Examples
+
+### Reading Multiple Files
+
+``` r
+# Read all CSV files in a directory
+files <- list.files("data/", pattern = "\\.csv$", full.names = TRUE)
+data_list <- lapply(files, read)
+combined <- do.call(rbind, data_list)
+```
+
+### Working with Geospatial Data
+
+``` r
+# Read shapefile
+boundaries <- read("admin_boundaries.shp")
+
+# Read NetCDF climate data
+climate <- read("temperature.nc")
+
+# Works seamlessly with sf and stars packages
+library(sf)
+plot(boundaries)
+```
+
+### Configuration Files
+
+``` r
+# Read YAML config
+config <- read("config.yml")
+
+# Read INI file
+database_config <- read("database.ini")
+```
+
+## Comparison with Traditional Approach
+
+**Before (Traditional):**
+
+``` r
+csv_data <- read.csv("data.csv")
+excel_data <- readxl::read_excel("data.xlsx")
+yaml_data <- yaml::read_yaml("config.yml")
+spatial_data <- sf::read_sf("boundaries.shp")
+```
+
+**After (with kread):**
+
+``` r
+csv_data <- read("data.csv")
+excel_data <- read("data.xlsx")
+yaml_data <- read("config.yml")
+spatial_data <- read("boundaries.shp")
+```
+
+## Documentation
+
+For more detailed information:
+
+- Run `?read`, `?read_table`, or `?read_excel` in R
+- Browse the [vignette](vignettes/kread-intro.Rmd) for comprehensive
+  examples
+- Visit the [package website](https://orlandokevin.gitlab.io/kread/)
+  (when available)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues or merge
+requests on [GitLab](https://gitlab.com/OrlandoKevin/kread).
+
+## License
+
+This package is licensed under AGPL-3.0 or later.
