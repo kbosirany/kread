@@ -1,5 +1,3 @@
-OptirrigDatasets
-================
 
 <!-- badges: start -->
 
@@ -9,8 +7,8 @@ v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/l
 [![Experimental](https://img.shields.io/badge/status-experimental-orange.svg)](https://gitlab.com/OrlandoKevin/kread)
 [![pipeline
 status](https://gitlab.com/OrlandoKevin/kread/-/badges/main/pipeline.svg)](https://gitlab.com/OrlandoKevin/kread/-/commits/main)
-[![Dev coverage
-status](https://gitlab.com/OrlandoKevin/kread/-/badges/dev/coverage.svg)](https://gitlab.com/OrlandoKevin/kread/-/commits/dev)
+[![coverage
+report](https://gitlab.com/OrlandoKevin/kread/-/badges/main/coverage.svg)](https://gitlab.com/OrlandoKevin/kread/-/commits/main)
 <!-- badges: end -->
 
 `kread` is …
