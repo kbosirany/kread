@@ -1,7 +1,7 @@
 test_that("get_read_fun returns correct function for delimited files", {
-  expect_identical(get_read_fun("file.csv"), readr::read_delim)
-  expect_identical(get_read_fun("file.tsv"), readr::read_delim)
-  expect_identical(get_read_fun("file.dat"), readr::read_delim)
+  expect_identical(get_read_fun("file.csv"), read_table)
+  expect_identical(get_read_fun("file.tsv"), read_table)
+  expect_identical(get_read_fun("file.dat"), read_table)
 })
 
 test_that("get_read_fun returns correct function for ini files", {
@@ -9,8 +9,8 @@ test_that("get_read_fun returns correct function for ini files", {
 })
 
 test_that("get_read_fun returns correct function for Excel files", {
-  expect_identical(get_read_fun("file.xls"), readxl::read_excel)
-  expect_identical(get_read_fun("file.xlsx"), readxl::read_excel)
+  expect_identical(get_read_fun("file.xls"), read_excel)
+  expect_identical(get_read_fun("file.xlsx"), read_excel)
 })
 
 test_that("get_read_fun returns correct function for ODS files", {
@@ -43,8 +43,8 @@ test_that("get_read_fun throws error for unsupported file extensions", {
 })
 
 test_that("get_read_fun handles file paths with directories", {
-  expect_identical(get_read_fun("/path/to/file.csv"), readr::read_delim)
-  expect_identical(get_read_fun("./relative/path/file.xlsx"), readxl::read_excel)
+  expect_identical(get_read_fun("/path/to/file.csv"), read_table)
+  expect_identical(get_read_fun("./relative/path/file.xlsx"), read_excel)
   expect_identical(get_read_fun("../parent/dir/file.rds"), readRDS)
 })
 

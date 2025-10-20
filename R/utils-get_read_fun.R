@@ -35,9 +35,9 @@
 #' @export
 get_read_fun <- function(path) {
   ext <- tools::file_ext(path)
-  if (ext %in% c("csv", "tsv", "dat")) return(readr::read_delim)
+  if (ext %in% c("csv", "tsv", "dat")) return(read_table)
   if (ext == "ini") return(ini::read.ini)
-  if (ext %in% c("xls", "xlsx")) return(readxl::read_excel)
+  if (ext %in% c("xls", "xlsx")) return(read_excel)
   if (ext == "ods") return(readODS::read_ods)
   if (ext == "nc") return(stars::read_mdim)
   if (ext %in% c("RDS", "rds")) return(readRDS)
