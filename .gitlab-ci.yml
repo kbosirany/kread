@@ -2,9 +2,6 @@ stages:
   - checks
   - deploy
 
-default:
-  tags: [goldenrunner]
-
 image: rocker/geospatial:latest
 
 variables:
