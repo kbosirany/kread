@@ -9,7 +9,6 @@ Description: The kread package provides functions to read various file formats
     into R, making data import easier and more efficient.
 License: AGPL (>= 3)
 Imports: 
-    fairify,
     readr,
     readxl,
     readODS,
