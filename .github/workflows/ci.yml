@@ -1,0 +1,145 @@
+
+name: Check and Deploy
+
+permissions:
+  id-token: write
+  contents: write
+  pages: write
+
+on:
+  push:
+    branches-ignore:
+      - 'gh-pages'
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday at midnight
+
+env:
+  CI_CACHE_DIR: ${{ github.workspace }}/ci
+  R_LIBS_USER: ${{ github.workspace }}/ci/lib
+  COVERAGE_REPORT: ${{ github.workspace }}/ci/coverage.RDS
+  NOT_CRAN: "true"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    # Skip on gh-pages branch and scheduled runs
+    if: github.ref != 'refs/heads/gh-pages' && github.event_name != 'schedule'
+    container:
+      image: rocker/geospatial:latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CI_CACHE_DIR }}
+          key: ${{ runner.os }}-r-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-r-
+      
+      - name: Setup R environment
+        run: |
+          mkdir -p $R_LIBS_USER
+          echo "R_LIBS='$R_LIBS_USER'" > .Renviron
+          R -q -e 'if (!require(devtools)) install.packages("devtools")'
+          R -q -e 'devtools::install_deps(dependencies = TRUE)'
+      
+      - name: Run R CMD check
+        run: R -q -e 'devtools::check(vignettes = TRUE, error_on = "error")'
+
+  coverage:
+    runs-on: ubuntu-latest
+    # Run only on main or default branch, not on scheduled runs
+    if: (github.ref == 'refs/heads/main' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)) && github.event_name != 'schedule'
+    continue-on-error: true
+    container:
+      image: rocker/geospatial:latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CI_CACHE_DIR }}
+          key: ${{ runner.os }}-r-coverage-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-r-coverage-
+            ${{ runner.os }}-r-
+      
+      - name: Setup R environment
+        run: |
+          mkdir -p $R_LIBS_USER
+          echo "R_LIBS='$R_LIBS_USER'" > .Renviron
+          R -q -e 'if (!require(devtools)) install.packages("devtools")'
+          R -q -e 'devtools::install_deps(dependencies = TRUE)'
+      
+      - name: Generate coverage report
+        run: |
+          Rscript -e 'devtools::install()'
+          Rscript -e 'remotes::install_cran(c("covr", "DT"))'
+          Rscript -e 'cov <- covr::package_coverage(type = "all", quiet = FALSE);cov;saveRDS(cov, Sys.getenv("COVERAGE_REPORT"))'
+      
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-data
+          path: ci/coverage.RDS
+          retention-days: 1
+
+  deploy-pages:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    # Run only on main or dev branch, not on scheduled runs
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && github.event_name != 'schedule'
+    needs: coverage
+    container:
+      image: rocker/geospatial:latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CI_CACHE_DIR }}
+          key: ${{ runner.os }}-r-deploy-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: |
+            ${{ runner.os }}-r-deploy-
+            ${{ runner.os }}-r-
+      
+      - name: Setup R environment
+        run: |
+          mkdir -p $R_LIBS_USER
+          echo "R_LIBS='$R_LIBS_USER'" > .Renviron
+          R -q -e 'if (!require(devtools)) install.packages("devtools")'
+          R -q -e 'devtools::install_deps(dependencies = TRUE)'
+      
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-data
+          path: ci/
+      
+      - name: Build site and coverage report
+        run: |
+          R -q -e 'if (!require(pkgdown)) install.packages("pkgdown")'
+          R -q -e 'if (!requireNamespace("fairify", quietly = TRUE)) remotes::install_github("OrlandoKevin/fairify")'
+          R -q -e 'fairify::build_site(output_format = "bookdown::gitbook", output_dir = "public")'
+          R -q -e 'remotes::install_cran(c("covr", "DT"))'
+          R -q -e 'covr::report(readRDS(Sys.getenv("COVERAGE_REPORT")), "public/coverage.html")'
+      
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
