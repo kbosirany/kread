@@ -70,6 +70,6 @@ pages:
       artifacts: true
   script:
     - R -q -e 'if (!require(pkgdown)) install.packages("pkgdown")'
-    - R -q -e 'pkgdown::build_site(output_format = "bookdown::gitbook")'
+    - R -q -e 'pkgdown::build_site()'
     - R -q -e 'remotes::install_cran(c("covr", "DT"))'
     - R -q -e 'covr::report(readRDS(Sys.getenv("COVERAGE_REPORT")), "public/coverage.html")'
