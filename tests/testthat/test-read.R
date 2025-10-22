@@ -148,7 +148,7 @@ test_that("read_excel() reads multiple sheets", {
   result <- read_excel(path, sheets = c("mtcars", "chickwts"))
   expect_type(result, "list")
   expect_equal(length(result), 2)
-  expect_named(result, NULL)  # lapply doesn't preserve names by default
+  expect_named(result, c("mtcars", "chickwts"))
 })
 
 test_that("read_excel() simplifies single sheet to data frame", {
