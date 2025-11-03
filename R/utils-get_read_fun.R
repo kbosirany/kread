@@ -33,6 +33,7 @@
 #' }
 #'
 #' @export
+#'
 get_read_fun <- function(path) {
   ext <- tools::file_ext(path)
   if (ext %in% c("csv", "tsv", "dat")) return(read_table)
