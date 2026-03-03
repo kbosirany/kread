@@ -5,14 +5,9 @@
 
 <!-- badges: start -->
 
-[![Release](https://gitlab.com/OrlandoKevin/kread/-/badges/release.svg)](https://gitlab.com/OrlandoKevin/kread.git)
 [![License: AGPL
 v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Experimental](https://img.shields.io/badge/status-experimental-orange.svg)](https://gitlab.com/OrlandoKevin/kread)
-[![pipeline
-status](https://gitlab.com/OrlandoKevin/kread/badges/main/pipeline.svg)](https://gitlab.com/OrlandoKevin/kread/commits/main)
-[![Dev coverage
-status](https://gitlab.com/OrlandoKevin/kread/badges/main/coverage.svg)](https://orlandokevin.gitlab.io/kread/coverage.html)
+[![Experimental](https://img.shields.io/badge/status-experimental-orange.svg)](https://github.com/kbosirany/kread)
 <!-- badges: end -->
 
 The `kread` package provides a unified interface for reading various
@@ -35,18 +30,18 @@ its extension and applies the appropriate reading function.
 
 ## Installation
 
-You can install the development version of `kread` from GitLab:
+You can install the development version of `kread` from GitHub:
 
 ``` r
 # install.packages("remotes")
-remotes::install_gitlab("OrlandoKevin/kread")
+remotes::install_github("kbosirany/kread")
 ```
 
 Or using git URL:
 
 ``` r
 remotes::install_git(
-  "https://gitlab.com/OrlandoKevin/kread.git", 
+  "https://github.com/kbosirany/kread.git",
   dependencies = TRUE
 )
 ```
@@ -91,13 +86,12 @@ For more detailed information:
 - Run `?read`, `?read_table`, or `?read_excel` in R
 - Browse the [vignette](vignettes/kread-intro.Rmd) for comprehensive
   examples
-- Visit the [package website](https://orlandokevin.gitlab.io/kread/)
-  (when available)
+- Visit the [package repository](https://github.com/kbosirany/kread) for more info
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit issues or merge
-requests on [GitLab](https://gitlab.com/OrlandoKevin/kread).
+Contributions are welcome! Please feel free to submit issues or pull
+requests on [GitHub](https://github.com/kbosirany/kread).
 
 ## License
 
