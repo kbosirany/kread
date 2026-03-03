@@ -4,35 +4,38 @@
 \alias{read_table}
 \title{Read a delimited table file}
 \usage{
-read_table(path, ..., show_col_types = FALSE)
+read_table(path, ...)
 }
 \arguments{
-\item{path}{Character string specifying the path to the delimited file to read.}
+\item{path}{Character string specifying the path to the delimited file to
+read.}
 
-\item{...}{Additional arguments passed to \code{\link[readr:read_delim]{readr::read_delim()}}.}
-
-\item{show_col_types}{Logical indicating whether to show column type messages.
-Default is \code{FALSE} to suppress these messages.}
+\item{...}{Additional arguments passed to \code{\link[data.table:fread]{data.table::fread()}}.}
 }
 \value{
-A tibble containing the data from the delimited file.
+A data.table containing the data from the delimited file.
 }
 \description{
 This function reads a delimited file (CSV, TSV, or other delimited formats)
-using \code{readr::read_delim()}. By default, column type messages are suppressed.
+using \code{data.table::fread()}. The delimiter is automatically detected but can
+be overridden using the \code{sep} parameter.
 }
 \examples{
 \dontrun{
-# Read a CSV file
+# Read a CSV file (delimiter auto-detected)
 data <- read_table("data.csv")
 
-# Read a TSV file with custom delimiter
-data_tsv <- read_table("data.tsv", delim = "\t")
+# Read a TSV file (delimiter auto-detected)
+data_tsv <- read_table("data.tsv")
 
-# Read with column types shown
-data_verbose <- read_table("data.csv", show_col_types = TRUE)
+# Read with custom delimiter
+data_semi <- read_table("data.csv", sep = ";")
 
 # Read with specific column names
-data_named <- read_table("data.csv", col_names = c("ID", "Name", "Value"))
+data_named <- read_table("data.csv", col.names = c("ID", "Name", "Value"))
+
+# Read with skip lines
+data_skip <- read_table("data.csv", skip = 2)
 }
+
 }

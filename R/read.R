@@ -2,7 +2,7 @@
 #'
 #' This function reads a file by automatically detecting the appropriate reading
 #' function based on the file extension. It delegates the actual reading to the
-#' appropriate function (e.g., `readr::read_delim` for CSV files,
+#' appropriate function (e.g., `data.table::fread` for CSV files,
 #' `readxl::read_excel` for Excel files, etc.).
 #'
 #' @param path Character string specifying the path to the file to read.
@@ -26,7 +26,7 @@
 #' data_excel <- read("data.xlsx")
 #'
 #' # Read with additional arguments
-#' data_csv2 <- read("data.csv", delim = ";", col_names = TRUE)
+#' data_csv2 <- read("data.csv", sep = ";", skip = 1)
 #'
 #' # Specify a custom reading function
 #' data_custom <- read("data.csv", FUN = readr::read_csv)
@@ -39,35 +39,37 @@ read <- function(path, ..., FUN = get_read_fun(path)) {
 #' Read a delimited table file
 #'
 #' This function reads a delimited file (CSV, TSV, or other delimited formats)
-#' using `readr::read_delim()`. By default, column type messages are suppressed.
+#' using `data.table::fread()`. The delimiter is automatically detected but can
+#' be overridden using the `sep` parameter.
 #'
 #' @param path Character string specifying the path to the delimited file to
 #'   read.
-#' @param ... Additional arguments passed to [readr::read_delim()].
-#' @param show_col_types Logical indicating whether to show column type
-#'   messages. Default is `FALSE` to suppress these messages.
+#' @param ... Additional arguments passed to [data.table::fread()].
 #'
-#' @return A tibble containing the data from the delimited file.
+#' @return A data.table containing the data from the delimited file.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Read a CSV file
+#' # Read a CSV file (delimiter auto-detected)
 #' data <- read_table("data.csv")
 #'
-#' # Read a TSV file with custom delimiter
-#' data_tsv <- read_table("data.tsv", delim = "\t")
+#' # Read a TSV file (delimiter auto-detected)
+#' data_tsv <- read_table("data.tsv")
 #'
-#' # Read with column types shown
-#' data_verbose <- read_table("data.csv", show_col_types = TRUE)
+#' # Read with custom delimiter
+#' data_semi <- read_table("data.csv", sep = ";")
 #'
 #' # Read with specific column names
-#' data_named <- read_table("data.csv", col_names = c("ID", "Name", "Value"))
+#' data_named <- read_table("data.csv", col.names = c("ID", "Name", "Value"))
+#'
+#' # Read with skip lines
+#' data_skip <- read_table("data.csv", skip = 2)
 #' }
 #'
-read_table <- function(path, ..., show_col_types = FALSE) {
-  readr::read_delim(path, ..., show_col_types = show_col_types)
+read_table <- function(path, ...) {
+  data.table::fread(path, ...)
 }
 
 #' Read Excel files with support for multiple sheets

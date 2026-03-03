@@ -11,7 +11,7 @@
 #' @details
 #' The function supports the following file types:
 #' \itemize{
-#'   \item \strong{Delimited files}: .csv, .tsv, .dat (uses \code{readr::read_delim})
+#'   \item \strong{Delimited files}: .csv, .tsv, .dat (uses \code{data.table::fread})
 #'   \item \strong{INI files}: .ini (uses \code{ini::read.ini})
 #'   \item \strong{Excel files}: .xls, .xlsx (uses \code{readxl::read_excel})
 #'   \item \strong{OpenDocument Spreadsheet}: .ods (uses \code{readODS::read_ods})

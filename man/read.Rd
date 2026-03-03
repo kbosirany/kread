@@ -9,19 +9,21 @@ read(path, ..., FUN = get_read_fun(path))
 \arguments{
 \item{path}{Character string specifying the path to the file to read.}
 
-\item{...}{Additional arguments passed to the reading function determined by \code{FUN}.}
+\item{...}{Additional arguments passed to the reading function determined by
+\code{FUN}.}
 
 \item{FUN}{Function to use for reading the file. By default, this is
 automatically determined by \code{\link[=get_read_fun]{get_read_fun()}} based on the file extension.}
 }
 \value{
 The return value depends on the file type and the function used to
-read it. Typically returns a data frame, tibble, or other appropriate R object.
+read it. Typically returns a data frame, tibble, or other appropriate R
+object.
 }
 \description{
 This function reads a file by automatically detecting the appropriate reading
 function based on the file extension. It delegates the actual reading to the
-appropriate function (e.g., \code{readr::read_delim} for CSV files,
+appropriate function (e.g., \code{data.table::fread} for CSV files,
 \code{readxl::read_excel} for Excel files, etc.).
 }
 \examples{
@@ -33,9 +35,10 @@ data_csv <- read("data.csv")
 data_excel <- read("data.xlsx")
 
 # Read with additional arguments
-data_csv2 <- read("data.csv", delim = ";", col_names = TRUE)
+data_csv2 <- read("data.csv", sep = ";", skip = 1)
 
 # Specify a custom reading function
 data_custom <- read("data.csv", FUN = readr::read_csv)
 }
+
 }

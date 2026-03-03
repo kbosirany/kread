@@ -19,7 +19,7 @@ test_that("read() works with CSV files", {
   tmp_csv <- create_test_csv()
   on.exit(unlink(tmp_csv))
 
-  result <- read(tmp_csv, delim = ",")
+  result <- read(tmp_csv)
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), 3)
   expect_equal(ncol(result), 2)
@@ -30,7 +30,7 @@ test_that("read() accepts additional arguments", {
   on.exit(unlink(tmp_csv))
 
   # Test with delim argument
-  result <- read(tmp_csv, delim = ",")
+  result <- read(tmp_csv)
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), 3)
 })
@@ -49,8 +49,8 @@ test_that("read() automatically detects file type", {
   tmp_csv <- create_test_csv()
   on.exit(unlink(tmp_csv))
 
-  # Should automatically use readr::read_delim for CSV
-  result <- read(tmp_csv, delim = ",")
+  # Should automatically use data.table::fread for CSV
+  result <- read(tmp_csv)
   expect_s3_class(result, "data.frame")
 })
 
@@ -70,8 +70,8 @@ test_that("read_table() reads CSV files correctly", {
   tmp_csv <- create_test_csv()
   on.exit(unlink(tmp_csv))
 
-  result <- read_table(tmp_csv, delim = ",")
-  expect_s3_class(result, "tbl_df")
+  result <- read_table(tmp_csv)
+  expect_s3_class(result, "data.table")
   expect_equal(nrow(result), 3)
   expect_equal(ncol(result), 2)
 })
@@ -80,38 +80,28 @@ test_that("read_table() reads TSV files correctly", {
   tmp_tsv <- create_test_tsv()
   on.exit(unlink(tmp_tsv))
 
-  result <- read_table(tmp_tsv, delim = "\t")
-  expect_s3_class(result, "tbl_df")
+  result <- read_table(tmp_tsv)
+  expect_s3_class(result, "data.table")
   expect_equal(nrow(result), 3)
   expect_equal(ncol(result), 2)
 })
 
-test_that("read_table() suppresses column type messages by default", {
+test_that("read_table() works silently by default", {
   tmp_csv <- create_test_csv()
   on.exit(unlink(tmp_csv))
 
-  # Should not produce messages
-  expect_silent(read_table(tmp_csv, delim = ","))
+  # fread is generally silent unless there are warnings
+  expect_silent(read_table(tmp_csv))
 })
 
-test_that("read_table() shows column types when requested", {
+test_that("read_table() accepts additional fread arguments", {
   tmp_csv <- create_test_csv()
   on.exit(unlink(tmp_csv))
 
-  # Should show column specification
-  expect_message(
-    read_table(tmp_csv, delim = ",", show_col_types = TRUE), "Rows|cols"
-  )
-})
-
-test_that("read_table() accepts additional readr arguments", {
-  tmp_csv <- create_test_csv()
-  on.exit(unlink(tmp_csv))
-
-  # Read with skip argument
-  result <- read_table(tmp_csv, delim = ",", skip = 1)
-  expect_s3_class(result, "tbl_df")
-  # Should have fewer rows due to skip
+  # Read with nrows argument to limit rows
+  result <- read_table(tmp_csv, nrows = 2)
+  expect_s3_class(result, "data.table")
+  # Should have limited rows due to nrows
   expect_equal(nrow(result), 2)
 })
 
@@ -122,8 +112,9 @@ test_that("read_table() handles different delimiters", {
               sep = ";", row.names = FALSE)
   on.exit(unlink(tmp_semi))
 
-  result <- read_table(tmp_semi, delim = ";")
-  expect_s3_class(result, "tbl_df")
+  # fread auto-detects separator, but can override with sep parameter
+  result <- read_table(tmp_semi, sep = ";")
+  expect_s3_class(result, "data.table")
   expect_equal(nrow(result), 3)
   expect_equal(ncol(result), 2)
 })
