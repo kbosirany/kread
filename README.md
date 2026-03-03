@@ -55,7 +55,7 @@ remotes::install_git(
 
 | Format          | Extensions             | Function Used        |
 |-----------------|------------------------|----------------------|
-| Delimited files | `.csv`, `.tsv`, `.dat` | `readr::read_delim`  |
+| Delimited files | `.csv`, `.tsv`, `.dat` | `data.table::fread`  |
 | Excel           | `.xls`, `.xlsx`        | `readxl::read_excel` |
 | OpenDocument    | `.ods`                 | `readODS::read_ods`  |
 | Shapefiles      | `.shp`                 | `sf::read_sf`        |
